@@ -1,0 +1,42 @@
+<?php
+// config/db.php — Database connection (XAMPP)
+define("DB_HOST", "localhost");
+define("DB_USER", "root");
+define("DB_PASS", ""); // XAMPP default: empty password
+define("DB_NAME", "garden_db");
+define("DB_PORT", 3306);
+
+class Database {
+    private static $instance = null;
+    private $connection;
+
+    private function __construct() {
+        $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+        try {
+            $this->connection = new PDO($dsn, DB_USER, DB_PASS, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+        } catch (PDOException $e) {
+            die(json_encode(["error" => "Database connection failed: " . $e->getMessage()]));
+        }
+    }
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection() {
+        return $this->connection;
+    }
+}
+
+// Wrapper to preserve backward compatibility for existing procedural code
+function getDB(): PDO
+{
+    return Database::getInstance()->getConnection();
+}

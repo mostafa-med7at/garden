@@ -1,0 +1,771 @@
+@startuml Class_Diagram_V2
+title Class Diagram — Version 2\n(Intermediate: Based on Interaction Diagrams, Before Design Patterns)
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam shadowing true
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam roundcorner 8
+
+skinparam class {
+    BackgroundColor      #FFFFFF
+    BorderColor          #2d6a4f
+    FontColor            #1a1a2e
+    HeaderBackgroundColor #d8f3dc
+    StereotypeFontColor  #40916c
+    AttributeFontColor   #333333
+    ArrowColor           #2d6a4f
+}
+
+skinparam note {
+    BackgroundColor #f0fdf4
+    BorderColor     #52b788
+    FontColor       #1a1a2e
+}
+
+' ===========================================================
+' PACKAGE: Core / Infrastructure
+' ===========================================================
+package "Core / Infrastructure" #f0fdf4 {
+
+    class Database {
+        - instance : Database  {static}
+        - connection : PDO
+        --
+        + {static} getInstance() : Database
+        + getConnection() : PDO
+    }
+
+    abstract class Controller {
+        # model(name : string) : Model
+        # view(view : string, data : array) : void
+    }
+
+    abstract class Model {
+        # db : PDO
+        --
+        + __construct()
+    }
+
+    class View {
+        + {static} render(viewPath : string, data : array) : void
+    }
+
+    Model "uses" --> Database : <<uses>>
+}
+
+' ===========================================================
+' PACKAGE: Domain Entities
+' ===========================================================
+package "Domain Entities" #fffde7 {
+
+    class User {
+        + id : int
+        + full_name : string
+        + email : string
+        + phone : string
+        + role_id : int
+        + membership_status : string
+        + community_points : int
+        + karma_points : int
+        + seed_bank_credits : int
+        + residency_months : int
+        + gate_code : string
+        + is_active : bool
+        + created_at : datetime
+    }
+
+    class Plot {
+        + id : int
+        + plot_code : string
+        + area_sqm : float
+        + sunlight_level : string
+        + soil_quality : string
+        + status : string
+        + compliance_status : string
+        + grid_x : int
+        + grid_y : int
+    }
+
+    class Lease {
+        + id : int
+        + plot_id : int
+        + user_id : int
+        + start_date : date
+        + end_date : date
+        + base_fee : float
+        + soil_multiplier : float
+        + membership_discount : float
+        + total_fee : float
+        + status : string
+        + payment_method : string
+    }
+
+    class Seed {
+        + id : int
+        + name : string
+        + variety : string
+        + quantity_packets : int
+        + stored_date : date
+        + expiry_months : int
+        + allergen_category : string
+        + parent_plant_notes : string
+        + status : string
+        + added_by : int
+    }
+
+    class Tool {
+        + id : int
+        + name : string
+        + description : string
+        + status : string
+        + total_usage_hours : float
+        + maintenance_threshold_hours : float
+        + needs_maintenance : bool
+        + media_links : string
+    }
+
+    class ToolReservation {
+        + id : int
+        + tool_id : int
+        + user_id : int
+        + slot_date : date
+        + slot_start : time
+        + slot_end : time
+        + due_date : datetime
+        + status : string
+        + returned_at : datetime
+    }
+
+    class DamageReport {
+        + id : int
+        + tool_id : int
+        + reported_by : int
+        + description : string
+        + damage_type : string
+        + repair_fee : float
+        + is_exempt : bool
+        + status : string
+        + admin_reviewed_by : int
+        + reviewed_at : datetime
+    }
+
+    class Task {
+        + id : int
+        + title : string
+        + description : string
+        + difficulty_score : int
+        + points_reward : int
+        + status : string
+        + assigned_to : int
+        + created_by : int
+        + completed_at : datetime
+    }
+
+    class ServiceHour {
+        + id : int
+        + user_id : int
+        + hours_logged : float
+        + activity_description : string
+        + month_year : string
+        + status : string
+        + reviewed_by : int
+        + logged_at : datetime
+    }
+
+    class Shift {
+        + id : int
+        + title : string
+        + shift_date : date
+        + start_time : time
+        + end_time : time
+        + assigned_to : int
+    }
+
+    class ShiftSwapRequest {
+        + id : int
+        + shift_id : int
+        + requester_id : int
+        + target_id : int
+        + status : string
+        + expires_at : datetime
+        + responded_at : datetime
+    }
+
+    class FlashTrade {
+        + id : int
+        + seller_id : int
+        + title : string
+        + description : string
+        + quantity : string
+        + allergen_flag : bool
+        + allergen_category : string
+        + expires_at : datetime
+        + status : string
+        + claimed_by : int
+        + claimed_at : datetime
+    }
+
+    class Donation {
+        + id : int
+        + donor_id : int
+        + produce_name : string
+        + quantity : string
+        + karma_points_awarded : int
+        + is_rejected : bool
+        + rejection_reason : string
+        + donated_at : datetime
+    }
+
+    class AdviceQuestion {
+        + id : int
+        + asker_id : int
+        + question : string
+        + status : string
+        + best_answer_id : int
+        + asked_at : datetime
+    }
+
+    class AdviceAnswer {
+        + id : int
+        + question_id : int
+        + answerer_id : int
+        + answer : string
+        + credits_awarded : int
+        + answered_at : datetime
+    }
+
+    class Proposal {
+        + id : int
+        + title : string
+        + description : string
+        + created_by : int
+        + status : string
+        + voting_ends_at : datetime
+        + winner_id : int
+    }
+
+    class Vote {
+        + id : int
+        + proposal_id : int
+        + user_id : int
+    }
+
+    class PestReport {
+        + id : int
+        + plot_id : int
+        + reported_by : int
+        + pest_type : string
+        + severity : string
+        + is_transmissible : bool
+        + description : string
+        + status : string
+        + reported_at : datetime
+    }
+
+    class Inspection {
+        + id : int
+        + plot_id : int
+        + warden_id : int
+        + notes : string
+        + photo_paths : json
+        + result : string
+        + violation_details : string
+        + penalty_applied : float
+        + inspected_at : datetime
+    }
+
+    class Incident {
+        + id : int
+        + reported_by : int
+        + title : string
+        + description : string
+        + location : string
+        + severity : string
+        + status : string
+        + resolved_by : int
+        + resolved_at : datetime
+    }
+
+    class Waitlist {
+        + id : int
+        + user_id : int
+        + priority_score : float
+        + status : string
+        + notified_at : datetime
+        + joined_at : datetime
+    }
+
+    class Notification {
+        + id : int
+        + user_id : int
+        + subject : string
+        + body : text
+        + type : string
+        + status : string
+        + is_read : bool
+        + sent_at : datetime
+    }
+
+    class MediaFile {
+        + id : int
+        + user_id : int
+        + file_name : string
+        + original_name : string
+        + mime_type : string
+        + file_size : int
+        + description : text
+        + uploaded_at : datetime
+    }
+
+    class AuditLog {
+        + id : int
+        + user_id : int
+        + action_type : string
+        + module : string
+        + target_table : string
+        + target_id : int
+        + description : string
+        + ip_address : string
+        + logged_at : datetime
+    }
+
+    ' --- Entity Associations (with labeled relationship types) ---
+    User "1" *-- "0..*" Lease           : <<Composition>>
+    User "1" *-- "0..*" Notification    : <<Composition>>
+    User "1" *-- "0..*" MediaFile       : <<Composition>>
+    User "1" o-- "0..*" ServiceHour     : <<Aggregation>>
+    User "1" o-- "0..*" FlashTrade      : <<Aggregation>>
+    User "1" o-- "0..*" Donation        : <<Aggregation>>
+    User "1" o-- "0..*" Vote            : <<Aggregation>>
+    User "1" o-- "0..*" AdviceQuestion  : <<Aggregation>>
+    User "1" o-- "0..*" AdviceAnswer    : <<Aggregation>>
+    User "1" o-- "0..1" Waitlist        : <<Aggregation>>
+
+    Plot "1" *-- "0..*" Lease           : <<Composition>>
+    Plot "1" o-- "0..*" PestReport      : <<Aggregation>>
+    Plot "1" o-- "0..*" Inspection      : <<Aggregation>>
+
+    Tool "1" *-- "0..*" ToolReservation : <<Composition>>
+    Tool "1" o-- "0..*" DamageReport    : <<Aggregation>>
+
+    AdviceQuestion "1" *-- "0..*" AdviceAnswer : <<Composition>>
+    Proposal "1" *-- "0..*" Vote               : <<Composition>>
+    Shift "1" o-- "0..*" ShiftSwapRequest      : <<Aggregation>>
+    Lease --> Plot                             : <<Association>>
+    Lease --> User                             : <<Association>>
+    ToolReservation --> Tool                   : <<Association>>
+    ToolReservation --> User                   : <<Association>>
+}
+
+' ===========================================================
+' PACKAGE: Models
+' ===========================================================
+package "Models" #e8f5e9 {
+
+    class PlotModel {
+        + getAllPlots() : array
+        + isUserOnWaitlist(userId : int) : bool
+        + getPlotById(id : int) : array
+        + getExistingGridPlots() : array
+        + isPlotCodeTaken(code : string) : bool
+        + isGridCellTaken(gridX : int, gridY : int) : bool
+        + createPlot(code, area, sunlight, soil, gridX, gridY) : int
+        + getPlotDetail(id : int) : array
+        + getSoilEvents(plotId : int, limit : int) : array
+        + getPestReports(plotId : int, limit : int) : array
+        + getInspections(plotId : int, limit : int) : array
+    }
+
+    class LeaseModel {
+        + expireOverdueLeases() : int
+        + getLeaseByIdAndUser(leaseId : int, userId : int) : array
+        + renewLease(leaseId, userId, feeAmount, method, newEnd) : void
+        + terminateLease(leaseId : int) : void
+        + getAllLeases() : array
+        + getUserLeases(userId : int) : array
+        + getAvailablePlots() : array
+        + getPlotByIdAvailable(plotId : int) : array
+        + getMembersForAdmin() : array
+        + getUserById(userId : int) : array
+        + createLease(plotId, userId, start, end, baseFee, multiplier, discountPct, total, method) : int
+    }
+
+    class SeedModel {
+        + addSeed(name, variety, qty, storedDate, expiryMonths, allergen, notes, addedBy) : int
+        + getAllSeeds() : array
+        + runViabilityCheck() : int
+        + passGermination(seedId : int) : void
+        + getSeedById(id : int) : array
+        + withdrawSeeds(seedId : int, qty : int, userId : int) : bool
+    }
+
+    class ToolModel {
+        + getToolStatus(id : int) : string
+        + updateToolStatus(id : int, status : string) : void
+        + logToolStateChange(toolId, changedBy, old, new, notes) : void
+        + checkReservationConflict(toolId, slotDate, slotStart, slotEnd, excludeResId) : bool
+        + createReservation(toolId, userId, slotDate, slotStart, slotEnd, due) : int
+        + getReservation(resId : int, userId : int) : array
+        + cancelReservation(resId : int) : void
+        + rescheduleReservation(resId, slotDate, slotStart, slotEnd, due) : void
+        + returnTool(resId : int, toolId : int) : void
+        + getToolById(id : int) : array
+        + markToolMaintenance(toolId : int) : void
+        + addPenalty(resId, userId, daysLate, fine, serviceHours) : void
+        + reportDamage(toolId : int, userId : int, desc : string) : int
+        + reviewDamage(repId, type, fee, exempt, adminId) : void
+        + getDamageReportToolId(repId : int) : int
+        + addTool(name, desc, threshold, mediaLinks) : int
+        + getAllTools() : array
+        + getMyReservations(userId : int) : array
+        + getPendingPenalties(userId : int) : array
+        + getAllDamageReports() : array
+    }
+
+    class TaskModel {
+        + addTask(title, desc, difficulty, pts, creatorId) : void
+        + claimTask(taskId : int, userId : int) : void
+        + getTask(taskId : int, userId : int) : array
+        + completeTask(taskId, userId, compType, pts, stat) : void
+        + addCommunityPoints(userId : int, pts : int) : void
+        + logServiceHours(userId, hours, desc, month) : void
+        + reviewServiceHours(hId : int, action : string, adminId : int) : void
+        + getAllTasks() : array
+        + getApprovedHours(userId : int, month : string) : float
+        + getPendingHours() : array
+        + getMyHourLog(userId : int, limit : int) : array
+    }
+
+    class ShiftModel {
+        + createShift(title, date, start, end, assignTo) : int
+        + checkPendingSwap(shiftId : int, requesterId : int) : bool
+        + requestSwap(shiftId, requesterId, targetId, expires) : void
+        + getSwapRequest(reqId : int, targetId : int) : array
+        + respondToSwap(reqId : int, response : string) : void
+        + swapShiftAssignment(shiftId : int, newAssignee : int) : void
+        + getAllShifts() : array
+        + getActiveMembers() : array
+        + getIncomingSwapRequests(targetId : int) : array
+    }
+
+    class TradeModel {
+        + createTrade(sellerId, title, desc, qty, allergen, cat, expires) : int
+        + getTradeToClaim(tradeId : int, userId : int) : array
+        + claimTrade(tradeId : int, userId : int) : void
+        + cancelTrade(tradeId : int, sellerId : int) : void
+        + donateProduce(userId, produce, qty, karma, spoiled, reason) : void
+        + addKarma(userId : int, karma : int) : void
+        + checkTradeClaim(tradeId : int, userId : int) : bool
+        + rateTrade(tradeId, userId, rating, notes) : void
+        + expireOldTrades() : void
+        + getActiveTrades() : array
+        + getMyTrades(sellerId : int, limit : int) : array
+        + getTradesClaimedByMe(claimerId : int, limit : int) : array
+        + getMyDonations(donorId : int, limit : int) : array
+        + getMyDonationStats(donorId : int) : array
+    }
+
+    class AdviceModel {
+        + askQuestion(askerId : int, question : string) : void
+        + getAskerId(questionId : int) : int
+        + postAnswer(questionId : int, answererId : int, answer : string) : void
+        + getAnswererId(answerId : int) : int
+        + markBestAnswer(questionId : int, answerId : int, credits : int) : void
+        + addSeedCredits(userId : int, credits : int) : void
+        + closeQuestion(questionId : int, askerId : int) : void
+        + getAllQuestions() : array
+        + getAnswersForQuestion(questionId : int) : array
+    }
+
+    class VotingModel {
+        + createProposal(title, desc, createdBy, endsAt) : void
+        + getOpenProposal(propId : int) : array
+        + castVote(propId : int, userId : int) : void
+        + getVoteCount(propId : int) : int
+        + closeVoting(propId : int, winnerId : int) : void
+        + getAllProposals(userId : int) : array
+        + getTotalActiveVoters() : int
+    }
+
+    class WaitlistModel {
+        + isUserOnWaitlist(userId : int) : bool
+        + joinWaitlist(userId : int, score : float) : int
+        + getTopWaitingMember() : array
+        + notifyTopMember(id : int) : void
+        + respond(userId : int, response : string) : void
+        + getAllWaitlistItems() : array
+        + getAvailablePlotsCount() : int
+    }
+
+    class PestReportModel {
+        + getMyPlot(userId : int) : array
+        + getAllPlots() : array
+        + createReport(plotId, userId, pestType, severity, transmit, desc) : int
+        + getPlotCode(plotId : int) : string
+        + getNeighborPlots(plotId : int, prefix : string) : array
+        + createInspection(plotId, wardenId, notes, photoPaths, result, violDet, penalty) : int
+        + updateCompliance(plotId : int, compStatus : string) : void
+        + getAllReports() : array
+        + getAllInspections() : array
+    }
+
+    class NotificationModel {
+        + sendNotification(recipientId, subject, body, type) : bool
+        + getActiveUserIds(recipients, roleId, singleUserId) : array
+        + getActivePlotOwners() : array
+        + markWaitlistNotified(uid : int) : void
+        + getPestReportById(id : int) : array
+        + getRoles() : array
+        + getAllActiveUsers() : array
+        + getWaitingList() : array
+        + getPestAlerts() : array
+        + getRecentLogs() : array
+        + getMyNotifications(userId : int) : array
+        + markAllAsRead(userId : int) : void
+    }
+
+    class MediaModel {
+        + addFile(userId, fileName, originalName, mimeType, fileSize, description) : int
+        + getFileById(id : int) : array
+        + deleteFile(id : int) : void
+        + getAllFiles() : array
+        + getFilesByUser(userId : int) : array
+    }
+
+    class AuditModel {
+        + changeUserRole(userId : int, newRoleId : int) : void
+        + toggleUserActive(userId : int) : void
+        + getAuditLogs(action, userId, date, module, limit) : array
+        + getAllUsersWithRoles() : array
+        + getAllRoles() : array
+        + getAuditStats() : array
+    }
+
+    class IncidentModel {
+        + logGateAccess(code : string, accessType : string) : bool
+        + reportIncident(reporterId, title, description, location, severity, status) : int
+        + updateIncidentStatus(incId : int, status : string, resolverId : int) : void
+        + getAllIncidents() : array
+        + getAccessLogs(limit : int) : array
+    }
+
+    class ReportModel {
+        + getMembersReport() : array
+        + getLeasesReport(from : string, to : string) : array
+        + getBillingReport(from : string, to : string) : array
+        + getToolsReport() : array
+        + getIncidentsReport(from : string, to : string) : array
+        + getVolunteersReport(from : string, to : string) : array
+        + getWaitlistReport() : array
+        + getAuditReport(from : string, to : string) : array
+        + getMembersExport() : array
+        + getLeasesExport(from : string, to : string) : array
+        + getBillingExport(from : string, to : string) : array
+        + getToolsExport() : array
+        + getIncidentsExport(from : string, to : string) : array
+        + getVolunteersExport(from, to, monthlyHours) : array
+        + getWaitlistExport() : array
+        + getAuditExport(from : string, to : string) : array
+    }
+
+    ' Inheritance (Generalization)
+    Model <|-- PlotModel        : <<Generalization>>
+    Model <|-- LeaseModel       : <<Generalization>>
+    Model <|-- SeedModel        : <<Generalization>>
+    Model <|-- ToolModel        : <<Generalization>>
+    Model <|-- TaskModel        : <<Generalization>>
+    Model <|-- ShiftModel       : <<Generalization>>
+    Model <|-- TradeModel       : <<Generalization>>
+    Model <|-- AdviceModel      : <<Generalization>>
+    Model <|-- VotingModel      : <<Generalization>>
+    Model <|-- WaitlistModel    : <<Generalization>>
+    Model <|-- PestReportModel  : <<Generalization>>
+    Model <|-- NotificationModel: <<Generalization>>
+    Model <|-- MediaModel       : <<Generalization>>
+    Model <|-- AuditModel       : <<Generalization>>
+    Model <|-- IncidentModel    : <<Generalization>>
+    Model <|-- ReportModel      : <<Generalization>>
+
+    ' Model → Entity (Dependency)
+    PlotModel        ..> Plot             : <<Dependency>>
+    PlotModel        ..> Inspection       : <<Dependency>>
+    PlotModel        ..> PestReport       : <<Dependency>>
+    LeaseModel       ..> Lease            : <<Dependency>>
+    LeaseModel       ..> Plot             : <<Dependency>>
+    LeaseModel       ..> Waitlist         : <<Dependency>>
+    SeedModel        ..> Seed             : <<Dependency>>
+    ToolModel        ..> Tool             : <<Dependency>>
+    ToolModel        ..> ToolReservation  : <<Dependency>>
+    ToolModel        ..> DamageReport     : <<Dependency>>
+    TaskModel        ..> Task             : <<Dependency>>
+    TaskModel        ..> ServiceHour      : <<Dependency>>
+    ShiftModel       ..> Shift            : <<Dependency>>
+    ShiftModel       ..> ShiftSwapRequest : <<Dependency>>
+    TradeModel       ..> FlashTrade       : <<Dependency>>
+    TradeModel       ..> Donation         : <<Dependency>>
+    AdviceModel      ..> AdviceQuestion   : <<Dependency>>
+    AdviceModel      ..> AdviceAnswer     : <<Dependency>>
+    VotingModel      ..> Proposal         : <<Dependency>>
+    VotingModel      ..> Vote             : <<Dependency>>
+    WaitlistModel    ..> Waitlist         : <<Dependency>>
+    PestReportModel  ..> PestReport       : <<Dependency>>
+    PestReportModel  ..> Inspection       : <<Dependency>>
+    NotificationModel..> Notification     : <<Dependency>>
+    MediaModel       ..> MediaFile        : <<Dependency>>
+    AuditModel       ..> AuditLog         : <<Dependency>>
+    AuditModel       ..> User             : <<Dependency>>
+    IncidentModel    ..> Incident         : <<Dependency>>
+    ReportModel      ..> User             : <<Dependency>>
+    ReportModel      ..> Lease            : <<Dependency>>
+    ReportModel      ..> Tool             : <<Dependency>>
+    ReportModel      ..> Incident         : <<Dependency>>
+    ReportModel      ..> ServiceHour      : <<Dependency>>
+    ReportModel      ..> AuditLog         : <<Dependency>>
+}
+
+' ===========================================================
+' PACKAGE: Controllers
+' ===========================================================
+package "Controllers" #fff8e1 {
+
+    class PlotController {
+        + index(user : array) : void
+        + detail(user : array) : void
+        + create(user : array) : void
+        + pingSensor() : void
+    }
+
+    class LeaseController {
+        + index(user : array) : void
+        + create(user : array) : void
+    }
+
+    class SeedController {
+        - model : SeedModel
+        --
+        + __construct()
+        + index(user : array) : void
+    }
+
+    class ToolController {
+        + index(user : array) : void
+    }
+
+    class TaskController {
+        + index(user : array) : void
+    }
+
+    class ShiftController {
+        + index(user : array) : void
+    }
+
+    class TradeController {
+        + index(user : array) : void
+    }
+
+    class AdviceController {
+        + index(user : array) : void
+    }
+
+    class VotingController {
+        + index(user : array) : void
+    }
+
+    class WaitlistController {
+        + index(user : array) : void
+    }
+
+    class PestReportController {
+        + index(user : array) : void
+    }
+
+    class NotificationController {
+        - model : NotificationModel
+        --
+        + __construct()
+        + index(user : array) : void
+        + myNotifications(user : array) : void
+    }
+
+    class MediaController {
+        - model : MediaModel
+        --
+        + __construct()
+        + index(user : array) : void
+    }
+
+    class AuditController {
+        + index(user : array) : void
+    }
+
+    class IncidentController {
+        + index(user : array) : void
+    }
+
+    class ReportController {
+        - model : ReportModel
+        --
+        + __construct()
+        + index(user : array) : void
+        + export(user : array) : void
+    }
+
+    class DashboardController {
+        + index(user : array) : void
+    }
+
+    ' Inheritance (Generalization)
+    Controller <|-- PlotController        : <<Generalization>>
+    Controller <|-- LeaseController       : <<Generalization>>
+    Controller <|-- SeedController        : <<Generalization>>
+    Controller <|-- ToolController        : <<Generalization>>
+    Controller <|-- TaskController        : <<Generalization>>
+    Controller <|-- ShiftController       : <<Generalization>>
+    Controller <|-- TradeController       : <<Generalization>>
+    Controller <|-- AdviceController      : <<Generalization>>
+    Controller <|-- VotingController      : <<Generalization>>
+    Controller <|-- WaitlistController    : <<Generalization>>
+    Controller <|-- PestReportController  : <<Generalization>>
+    Controller <|-- NotificationController: <<Generalization>>
+    Controller <|-- MediaController       : <<Generalization>>
+    Controller <|-- AuditController       : <<Generalization>>
+    Controller <|-- IncidentController    : <<Generalization>>
+    Controller <|-- ReportController      : <<Generalization>>
+    Controller <|-- DashboardController   : <<Generalization>>
+
+    ' Controller → Model (Association)
+    PlotController        --> PlotModel         : <<Association>>
+    LeaseController       --> LeaseModel        : <<Association>>
+    SeedController        *-- SeedModel         : <<Composition>>
+    ToolController        --> ToolModel         : <<Association>>
+    TaskController        --> TaskModel         : <<Association>>
+    ShiftController       --> ShiftModel        : <<Association>>
+    TradeController       --> TradeModel        : <<Association>>
+    AdviceController      --> AdviceModel       : <<Association>>
+    VotingController      --> VotingModel       : <<Association>>
+    WaitlistController    --> WaitlistModel     : <<Association>>
+    PestReportController  --> PestReportModel   : <<Association>>
+    NotificationController *-- NotificationModel: <<Composition>>
+    MediaController       *-- MediaModel        : <<Composition>>
+    AuditController       --> AuditModel        : <<Association>>
+    IncidentController    --> IncidentModel     : <<Association>>
+    ReportController      *-- ReportModel       : <<Composition>>
+}
+
+' ===========================================================
+' LEGEND NOTE
+' ===========================================================
+note as Legend
+  <b>Relationship Types Legend</b>
+  ──────────────────────────────
+  <b>Generalization</b>  : --|>  (Inheritance / extends)
+  <b>Composition</b>     : *--   (Strong ownership, lifecycle)
+  <b>Aggregation</b>     : o--   (Weak ownership)
+  <b>Association</b>     : -->   (Uses / calls)
+  <b>Dependency</b>      : ..>   (Temporary use / query)
+end note
+
+@enduml
